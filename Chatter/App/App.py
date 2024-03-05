@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Create Date: 2023/10/18
 Author: @1chooo (Hugo ChunHo Lin)
 Version: v0.0.1
-'''
+"""
 
 import os
-from fastapi import FastAPI, Request, APIRouter
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
+import secrets
+
+from fastapi import APIRouter, Depends, FastAPI, Form, HTTPException, Request
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi import Form, Depends, HTTPException
-from Chatter.Utils.Build import build_and_mount_playground
+from fastapi.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
+
+from Chatter.Utils.Build import ADMIN_PATH, JUDGE_PATH, build_and_mount_playground
 
 app = FastAPI(
     title="Chatter Judge",
@@ -19,31 +22,32 @@ app = FastAPI(
     version="Chatter-v0.0.1-beta",
     docs_url="/docs",
 )
-
 os.makedirs("static", exist_ok=True)
 app.mount(
-    "/static", 
-    StaticFiles(directory="static"), 
+    "/static",
+    StaticFiles(directory="static"),
     name="static",
 )
+app = build_and_mount_playground(app)
 
-templates = Jinja2Templates(
-    directory="templates",
-)
 
-# @app.get("/")
-# def read_main():
-#     return {"message": "This is your main app"}
+@app.middleware("http")
+async def check_auth(request: Request, call_next):
+    if request.url.path.startswith(ADMIN_PATH):
+        if request.session.get("user") != "admin":
+            return JSONResponse(status_code=403, content={"message": "Not authenticated"})
+    elif request.url.path.startswith(JUDGE_PATH):
+        if not request.session.get("user"):
+            return JSONResponse(status_code=403, content={"message": "Not authenticated"})
 
-app = build_and_mount_playground(
-    app,
-    "judge",
-    "favicon.ico",
-    "/",
-)
+    return await call_next(request)
 
-@app.get('/favicon.ico', include_in_schema=False)
+
+app.add_middleware(SessionMiddleware, secret_key=secrets.token_hex(32))
+
+
+@app.get("/favicon.ico", include_in_schema=False)
 async def favicon() -> FileResponse:
     return FileResponse(
-        './static/favicon.ico',
+        "./static/favicon.ico",
     )

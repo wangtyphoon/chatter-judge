@@ -1,35 +1,35 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Create Date: 2023/10/18
 Author: @1chooo (Hugo ChunHo Lin)
 Version: v0.0.1
-'''
+"""
 
 import os
+
 import gradio as gr
 from fastapi import FastAPI
-from Chatter.GUI.Launch import build_chatter_judge
 
-def build_and_mount_playground(
-        app: FastAPI, 
-        playground_name: gr.Blocks, 
-        favicon_file: str, 
-        path: str,
-    ) -> FastAPI:
+from Chatter.GUI.Launch import (build_admin_management, build_chatter_judge,
+                                build_home_page)
 
-    if playground_name == "judge":
-        playground = build_chatter_judge()
-    else:
-        raise ValueError("Invalid playground name")
-    
-    favicon_path = "." + os.sep + "static" + os.sep + favicon_file
-    playground.favicon_path = favicon_path
+FAVICON_PATH = os.path.join(".", "static", "favicon.ico")
+JUDGE_PATH = "/judge"
+ADMIN_PATH = "/admin"
 
 
-    app = gr.mount_gradio_app(
-        app, 
-        playground, 
-        path=path
-    )
+def build_and_mount_playground(app: FastAPI) -> FastAPI:
+    playground = build_chatter_judge()
+    playground.favicon_path = FAVICON_PATH
+
+    app = gr.mount_gradio_app(app, playground, path=JUDGE_PATH)
+
+    playground = build_admin_management()
+    playground.favicon_path = FAVICON_PATH
+    app = gr.mount_gradio_app(app, playground, path=ADMIN_PATH)
+
+    playground = build_home_page()
+    playground.favicon_path = FAVICON_PATH
+    app = gr.mount_gradio_app(app, playground, path="/")
 
     return app
