@@ -14,8 +14,8 @@ from Chatter.GUI.Launch import (build_admin_management, build_chatter_judge,
                                 build_home_page)
 
 FAVICON_PATH = os.path.join(".", "static", "favicon.ico")
-JUDGE_PATH = "/judge"
-ADMIN_PATH = "/admin"
+JUDGE_PATH = "/judge/"
+ADMIN_PATH = "/admin/"
 
 
 def build_and_mount_playground(app: FastAPI) -> FastAPI:
