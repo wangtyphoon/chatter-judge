@@ -64,6 +64,12 @@ $ rmdir /s venv     # remove the venv
 
 ### Run web app
 ```shell
+# set the GEMINI_API_KEY to your environment
+# Windows:
+$ set GEMINI_API_KEY=your_gemini_api_key
+# MacOS/Linux:
+$ export GEMINI_API_KEY=your_gemini_api_key
+# Then:
 $ ./build.sh
 
 # or
@@ -73,6 +79,8 @@ $ uvicorn run:main --host 127.0.0.1 --port 5002
 ### Build and run with docker
 
 ```shell
+$ cp .env.example .env
+# now edit the .env file to set the GEMINI_API_KEY, then:
 # build the docker image and run the container
 $ docker-compose up -d
 # follow the logs
