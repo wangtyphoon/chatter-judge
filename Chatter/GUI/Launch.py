@@ -73,19 +73,19 @@ Welcome! This is the home page for Chatter Judge.
                 """# Login
 Welcome! This is the login page for Chatter Judge."""  # 保持英文
             )  # 顯示登錄頁面標題
-            with gr.Row():
+            with gr.Row(elem_id="login-row"):
                 # 用户名和密码输入框
                 gr.Textbox(label="Username", elem_id="username", interactive=True)
                 gr.Textbox(label="Password", elem_id="password", type="password", interactive=True)
                 gr.Button("Login", elem_id="login", interactive=True)  # 登錄按钮
 
-        # 註冊頁面 (WIP)
+        # 註冊頁面
         with gr.Tab("Register"):
             gr.Markdown(
                 """# Register
 Welcome! This is the register page for Chatter Judge. (WIP)"""  # 保持英文
             )  # 顯示註冊頁面標題
-            with gr.Row():
+            with gr.Row(elem_id="register-row"):
                 # 用户名和密码输入框
                 gr.Textbox(label="Username", elem_id="username", interactive=True)
                 gr.Textbox(label="Password", elem_id="password", type="password", interactive=True)
@@ -95,18 +95,33 @@ Welcome! This is the register page for Chatter Judge. (WIP)"""  # 保持英文
         home.load(
             _js="""\
 params=new URLSearchParams(window.location.search),
-params.get("error")&&alert(params.get("error")),
+params.get("msg")&&alert(params.get("msg")),
 document.getElementById("login").onclick=(()=>{
     const e=document.createElement("form");
     let a=document.createElement("input");
     a.name="username",
-    a.value=document.querySelector("#username > label > textarea").value,
+    a.value=document.querySelector("#login-row > div > #username > label > textarea").value,
     e.appendChild(a),
     (a=document.createElement("input")).name="password",
-    a.value=document.querySelector("#password > label > input").value,
+    a.value=document.querySelector("#login-row > div > #password > label > input").value,
     e.appendChild(a),
     e.method="POST",
     e.action="/auth/login",
+    e.style.display="none",
+    document.body.appendChild(e),
+    e.submit()
+}),
+document.getElementById("register").onclick=(()=>{
+    const e=document.createElement("form");
+    let a=document.createElement("input");
+    a.name="username",
+    a.value=document.querySelector("#register-row > div > #username > label > textarea").value,
+    e.appendChild(a),
+    (a=document.createElement("input")).name="password",
+    a.value=document.querySelector("#register-row > div > #password > label > input").value,
+    e.appendChild(a),
+    e.method="POST",
+    e.action="/auth/register",
     e.style.display="none",
     document.body.appendChild(e),
     e.submit()

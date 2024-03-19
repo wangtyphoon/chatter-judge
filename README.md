@@ -39,44 +39,7 @@ If you encounter any problems while contributing to this project, please report 
 > 4. Run `git merge upstream/main` to merge the updated remote version into your local copy. If there are no conflicts, the update process is complete.
 > 5. Run `git stash pop` to apply your temporarily stashed changes back to your working directory. Resolve any conflicts if necessary.
 
-## Developing Requirements
-
-Python version `python3.10` or later.
-
-### Build `venv` for **MacOS**
-```shell
-$ python3.10 -m venv venv
-$ source venv/bin/activate
-$ pip install -r requirements.txt
-$ deactivate
-$ rm -rf venv     # remove the venv
-```
-
-### Build `venv` for **Windows**
-```shell
-$ pip install virtualenv
-$ virtualenv venv
-$ venv\Scripts\activate
-$ pip install -r requirements.txt
-$ deactivate
-$ rmdir /s venv     # remove the venv
-```
-
-### Run web app
-```shell
-# set the GEMINI_API_KEY to your environment
-# Windows:
-$ $env:GEMINI_API_KEY="your_gemini_api_key"
-# MacOS/Linux:
-$ export GEMINI_API_KEY=your_gemini_api_key
-# Then:
-$ ./build.sh
-
-# or
-$ uvicorn run:main --host 127.0.0.1 --port 5002
-```
-
-### Build and run with docker
+## Build and run with docker
 
 ```shell
 $ cp .env.example .env

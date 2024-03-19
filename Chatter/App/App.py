@@ -7,18 +7,16 @@ Version: v0.0.1
 
 import os
 import secrets
-from typing import Annotated
 
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
-from Chatter.Utils.Build import (  # 自定義模組，包含構建和掛載 playground 的函數
-    ADMIN_PATH,
-    JUDGE_PATH,
-    build_and_mount_playground,
-)
+from Chatter.Database.models import init_models
+from Chatter.Routes.auth import router as auth_router
+from Chatter.Utils.Build import ADMIN_PATH  # 自定義模組，包含構建和掛載 playground 的函數
+from Chatter.Utils.Build import JUDGE_PATH, build_and_mount_playground
 
 # 需要身份驗證的路徑列表
 AUTH_NEEDED_PATH = [ADMIN_PATH, JUDGE_PATH]
@@ -42,32 +40,12 @@ app.mount(
 )
 
 
-# 登錄路由
-@app.post("/auth/login")
-async def login(
-    username: Annotated[str, Form()],  # 表單用户名
-    password: Annotated[str, Form()],  # 表單密碼
-    request: Request,  # 請求對象
-) -> RedirectResponse:
-    # TODO: 使用資料庫驗證用户名和密碼
-    if username == "admin" and password == "admin":
-        request.session["user"] = username  # 將用户名存儲在 Session 中
-        return RedirectResponse(url=ADMIN_PATH, status_code=303)  # 重定向到管理頁面
-    elif username == "user" and password == "user":
-        request.session["user"] = username  # 將用户名存儲在 Session 中
-        return RedirectResponse(url=JUDGE_PATH, status_code=303)  # 重定向到評判頁面
-    else:
-        return RedirectResponse(
-            url=f"/?error=Invalid username or password", status_code=303
-        )  # 重定向到登錄頁面並顯示錯誤信息
+@app.on_event("startup")
+async def startup_event():
+    await init_models()
 
 
-# 登出路由
-@app.get("/auth/logout")
-async def logout(request: Request) -> RedirectResponse:
-    request.session.clear()  # 清除 Session 數據
-    return RedirectResponse(url="/", status_code=303)  # 重定向到首頁
-
+app.include_router(auth_router)  # 包含 auth 路由
 
 # 構建和掛載 playground
 app = build_and_mount_playground(app)
