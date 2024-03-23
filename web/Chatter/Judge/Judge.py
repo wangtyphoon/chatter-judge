@@ -45,4 +45,4 @@ def execute_code(code, selected_homework_name, selected_question_name, *args, **
             # TODO: Maybe need to escape the message before rendering
             return f"### Your code results: {result['status']}\n{bytes.fromhex(msg)}"
 
-        return f"### Your code results: {result['status']}"
+        return f"### Your code results: {result['status']}\n{msg}"
