@@ -14,9 +14,9 @@ class RunCode(BaseModel):
 
 class Result(str, Enum):
     SUCCESS = "success"
-    COMPILE_TIME_ERROR = "compile_time_error"
+    COMPILE_ERROR = "compile_error"
     RUNTIME_ERROR = "runtime_error"
-    TIME_LIMIT_EXCEEDED = "time_limit_exceeded"
+    TIME_LIMIT_EXCEED = "time_limit_exceed"
 
 
 TIMEOUT = 8
@@ -29,7 +29,7 @@ def run(run_code: RunCode, background_tasks: BackgroundTasks):
     try:
         compile(run_code.code, "string", "exec")
     except Exception as e:
-        return Result.COMPILE_TIME_ERROR, str(e)
+        return {"status": Result.COMPILE_ERROR, "msg": str(e)}
 
     temp_file = tempfile.mktemp()
 
@@ -55,7 +55,7 @@ def run(run_code: RunCode, background_tasks: BackgroundTasks):
         )
     except subprocess.TimeoutExpired:
         os.remove(temp_file)
-        return Result.TIME_LIMIT_EXCEEDED, ""
+        return Result.TIME_LIMIT_EXCEED, ""
 
     background_tasks.add_task(os.remove, temp_file)
 

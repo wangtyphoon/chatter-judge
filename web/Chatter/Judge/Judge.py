@@ -15,9 +15,9 @@ SANDBOX_URL = os.environ["SANDBOX_URL"]
 
 class Result(str, Enum):
     SUCCESS = "success"
-    COMPILE_TIME_ERROR = "compile_time_error"
+    COMPILE_ERROR = "compile_error"
     RUNTIME_ERROR = "runtime_error"
-    TIME_LIMIT_EXCEEDED = "time_limit_exceeded"
+    TIME_LIMIT_EXCEED = "time_limit_exceed"
 
 
 def execute_code(code, selected_homework_name, selected_question_name, *args, **kwargs):
