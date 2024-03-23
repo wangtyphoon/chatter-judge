@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "chatter-judge"
+version = "0.1.0"
+description = ""
+authors = ["Chatter Judge <>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.110.0"
+gradio = "3.48.0"
+uvicorn = "^0.29.0"
+itsdangerous = "^2.1.2"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
+asyncpg = "^0.29.0"
+google-generativeai = "^0.4.1"
+python-multipart = "^0.0.9"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.3.0"
+isort = "^5.13.2"
+mkdocs = "^1.5.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
