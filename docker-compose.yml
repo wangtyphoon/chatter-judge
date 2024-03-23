@@ -2,15 +2,24 @@ version: '3'
 
 services:
   web:
-    build: .
+    build: web/
     ports:
       - "5002:5002"
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/db
+      - SANDBOX_URL=http://sandbox:1337
     env_file:
       - .env
     depends_on:
       - db
+      - sandbox
+  sandbox:
+    # ports:
+    #   - "1337:1337"
+    build: sandbox/
+    privileged: true
+    expose:
+      - 1337
   db:
     image: postgres:16-alpine
     environment:

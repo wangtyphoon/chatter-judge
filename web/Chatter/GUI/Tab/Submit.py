@@ -7,7 +7,7 @@ Version: v0.0.1
 
 import gradio as gr
 from typing import Any
-from Chatter.Judge.Judge import get_code
+from Chatter.Judge.Judge import execute_code
 from Chatter.ChatBot.Chat import respond
 from Chatter.Utils.Listener import submit_background_listener
 from Chatter.GUI.Information import Header as heaader
@@ -119,7 +119,7 @@ def init_submit_tab(*args, **kwargs):
 
 
     submit_code_btn.click(
-        get_code, 
+        execute_code, 
         inputs=[
             answer_code,
             selected_homework_name,
