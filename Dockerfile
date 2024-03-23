@@ -17,7 +17,8 @@ RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then poetry install --no-root ; els
 
 RUN useradd -m chatter
 
-COPY . /app/
+COPY ./Chatter/ /app/Chatter/
+COPY ./static/ /app/static/
 
 RUN chown -R chatter:chatter /app
 
