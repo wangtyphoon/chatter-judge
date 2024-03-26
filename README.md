@@ -54,7 +54,10 @@ $ docker-compose stop
 $ docker-compose down
 ```
 <!-- 王子祐的註解:帳號密碼需註冊，無寫死
-如果依賴項變更請使用 docker-compose up -d --build 替換 -->
+wsl unexpected error 請刪除windows sys
+docker run -d -p 80:80 docker/getting-started
+如果依賴項變更請使用 docker-compose up -d --build 替換 
+-->
 ### Build Docs
 ```shell
 $ mkdocs server
