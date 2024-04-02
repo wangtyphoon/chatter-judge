@@ -40,7 +40,8 @@ If you encounter any problems while contributing to this project, please report 
 > 5. Run `git stash pop` to apply your temporarily stashed changes back to your working directory. Resolve any conflicts if necessary.
 
 ## Build and run with docker
-
+# 重要
+# please download token.json and put in at web\token.json
 ```shell
 $ cp .env.example .env
 # now edit the .env file to set the GEMINI_API_KEY, then:
