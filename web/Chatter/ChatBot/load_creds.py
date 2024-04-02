@@ -22,14 +22,5 @@ def load_creds():
         creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
-        raise ValueError("bla bla bla")
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'Chatter/ChatBot/client_secret.json', SCOPES)
-            creds = flow.run_local_server()
-        # Save the credentials for the next run
-        with open(TOKEN_PATH, 'w') as token:
-            token.write(creds.to_json())
+        raise ValueError("credit invalud")
     return creds
