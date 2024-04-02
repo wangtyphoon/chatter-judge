@@ -19,6 +19,7 @@ RUN useradd -m chatter
 
 COPY ./Chatter/ /app/Chatter/
 COPY ./static/ /app/static/
+COPY ./token.json /app/token.json
 
 RUN chown -R chatter:chatter /app
 
