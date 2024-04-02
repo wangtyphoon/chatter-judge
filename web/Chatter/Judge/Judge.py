@@ -7,12 +7,11 @@ Version: v0.0.1
 
 import os
 from enum import Enum
-
+from Chatter.ChatBot.finetune import code_advice
 import httpx
 
 TIMEOUT = 15
 SANDBOX_URL = os.environ["SANDBOX_URL"]
-
 
 class Result(str, Enum):
     SUCCESS = "success"
@@ -21,7 +20,7 @@ class Result(str, Enum):
     TIME_LIMIT_EXCEED = "time_limit_exceed"
 
 
-def execute_code(code, selected_homework_name, selected_question_name, *args, **kwargs):
+async def execute_code(code, selected_homework_name, selected_question_name, *args, **kwargs):
     with httpx.Client(base_url=SANDBOX_URL) as client:
         try:
             r = client.post(
@@ -33,9 +32,9 @@ def execute_code(code, selected_homework_name, selected_question_name, *args, **
                 timeout=TIMEOUT,
             )
         except httpx.TimeoutException:
-            return "### Backend timeout"
+            return "### Backend timeout","error"
         if r.status_code != 200:
-            return "### Unknown error"
+            return "### Unknown error","error"
         result = r.json()
         print(result)
         status = Result(result["status"])
@@ -44,12 +43,11 @@ def execute_code(code, selected_homework_name, selected_question_name, *args, **
             # TODO: Handle the message
             msg = bytes.fromhex(msg)
             if msg == b"Hello World\n":
-                return "### Your code results: AC"
-            return f"### Your code results: WA"
+                return "### Your code results: AC","AC"
+            return f"### Your code results: WA","WA"
         elif status == Result.RUNTIME_ERROR:
             # TODO: Maybe need to escape the message before rendering
-            return f"### Your code results: {result['status']}\n{bytes.fromhex(msg)}"
-        elif status == Result.TIME_LIMIT_EXCEED:
-            return f"### Your code results: {result['status']}"
+            return f"### Your code results: {result['status']}\n{bytes.fromhex(msg)}","RE"
 
-        return f"### Your code results: {result['status']}\n{msg}"
+        text = await code_advice(f"{result['status']}\n{msg}")
+        return f"### Your code results: {result['status']}\n{msg}",text
