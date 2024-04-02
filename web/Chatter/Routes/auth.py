@@ -3,6 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import RedirectResponse
+from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,6 +15,16 @@ __all__ = ["router"]
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
 
 @router.post("/login")
 async def login(
@@ -22,13 +33,9 @@ async def login(
     request: Request,  # 請求對象
     db_session: AsyncSession = Depends(get_db),  # DB session
 ) -> RedirectResponse:
-    stmt = (
-        select(Users)
-        .where(Users.username == username)
-        .where(hashlib.sha256(password.encode()).hexdigest() == Users.password)
-    )
+    stmt = select(Users).where(Users.username == username)
     user = (await db_session.execute(stmt)).scalars().first()
-    if user:
+    if user and verify_password(password, user.password):
         request.session["user"] = username
         if username == "admin":
             return RedirectResponse(url=ADMIN_PATH, status_code=status.HTTP_303_SEE_OTHER)
@@ -50,7 +57,7 @@ async def register(
         return RedirectResponse(
             url=f"/?msg=Username already exists", status_code=status.HTTP_303_SEE_OTHER
         )
-    user = Users(username=username, password=hashlib.sha256(password.encode()).hexdigest())
+    user = Users(username=username, password=get_password_hash(password))
     db_session.add(user)
     await db_session.commit()
     return RedirectResponse(
