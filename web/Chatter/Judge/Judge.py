@@ -36,9 +36,9 @@ async def execute_code(code, selected_homework_name, selected_question_name, *ar
         if r.status_code != 200:
             return "### Unknown error","error"
         result = r.json()
-        print(result)
         status = Result(result["status"])
         msg = result["msg"]
+        print(f"{code}\n{result['status']}\n{msg}")
         if status == Result.SUCCESS:
             # TODO: Handle the message
             msg = bytes.fromhex(msg)
@@ -49,5 +49,6 @@ async def execute_code(code, selected_homework_name, selected_question_name, *ar
             # TODO: Maybe need to escape the message before rendering
             return f"### Your code results: {result['status']}\n{bytes.fromhex(msg)}","RE"
 
-        text = await code_advice(f"{result['status']}\n{msg}")
+        
+        text = await code_advice(f"{code}\n{result['status']}\n{msg}")
         return f"### Your code results: {result['status']}\n{msg}",text

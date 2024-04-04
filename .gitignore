@@ -161,3 +161,4 @@ cython_debug/
 
 # ignore secret files for google oauth
 **/token.json
+**/client_secret.json
