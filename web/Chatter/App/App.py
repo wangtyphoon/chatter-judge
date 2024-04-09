@@ -13,10 +13,13 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
-from Chatter.Database.models import init_models
+from Chatter.Database.models import init_default_data, init_models
 from Chatter.Routes.auth import router as auth_router
-from Chatter.Utils.Build import ADMIN_PATH  # 自定義模組，包含構建和掛載 playground 的函數
-from Chatter.Utils.Build import JUDGE_PATH, build_and_mount_playground
+from Chatter.Utils.Build import (
+    ADMIN_PATH,  # 自定義模組，包含構建和掛載 playground 的函數
+    JUDGE_PATH,
+    build_and_mount_playground,
+)
 
 # 需要身份驗證的路徑列表
 AUTH_NEEDED_PATH = [ADMIN_PATH, JUDGE_PATH]
@@ -43,6 +46,7 @@ app.mount(
 @app.on_event("startup")
 async def startup_event():
     await init_models()
+    await init_default_data()
 
 
 app.include_router(auth_router)  # 包含 auth 路由
@@ -59,7 +63,9 @@ async def check_auth(request: Request, call_next):
         request.url.path.startswith(path) for path in AUTH_NEEDED_PATH
     ):  # 未登錄且請求路徑需要身份驗證
         return RedirectResponse(url="/", status_code=303)  # 重定向到首頁
-    if request.url.path.startswith(ADMIN_PATH) and current_user != "admin":  # 請求管理頁面但不是管理員
+    if (
+        request.url.path.startswith(ADMIN_PATH) and current_user != "admin"
+    ):  # 請求管理頁面但不是管理員
         return JSONResponse(status_code=403, content={"message": "Not authorized"})  # 返回 403 錯誤
     return await call_next(request)  # 调用下一個中介軟體或路由
 
