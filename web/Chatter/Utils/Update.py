@@ -1,29 +1,34 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Create Date: 2023/10/18
 Author: @1chooo (Hugo ChunHo Lin)
 Version: v0.0.1
-'''
+"""
+
+import asyncio
 
 import gradio as gr
+from sqlalchemy import select
+
 import Chatter.GUI.Information.Question as question
+from Chatter.Database.connection import get_db
+from Chatter.Database.models import Question
 
-def get_question_description(selected_homework_name, selected_question_name):
 
-    output_components = []
+async def get_question_description(scope_name: str, question_name: str) -> gr.Markdown:
+    description = None
 
-    if selected_homework_name == "HW01" and selected_question_name == "Q1":
-
-        test_word = gr.Markdown(
-            question.homework_one_content_sessions[0],  
-            visible=True,
+    async for session in get_db():
+        # select where question have same name and scope name
+        stmt = (
+            select(Question)
+            .where(Question.name == question_name)
+            .where(Question.scope.has(name=scope_name))
         )
-    elif selected_homework_name == "HW01" and selected_question_name == "Q2":
-        test_word = gr.Markdown(
-            question.homework_one_content_sessions[1], 
-            visible=True,
-        )
+        question: Question | None = (await session.execute(stmt)).scalars().first()
+        if question:
+            description = question.description
+            if description:
+                return gr.Markdown(description)
 
-    output_components.append(test_word)
-    
-    return test_word
+    return gr.Markdown("No description found for this question.")

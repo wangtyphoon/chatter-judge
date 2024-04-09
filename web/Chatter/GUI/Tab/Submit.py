@@ -1,74 +1,72 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Create Date: 2024/01/14
 Author: @1chooo (Hugo ChunHo Lin)
 Version: v0.0.1
-'''
+"""
 
 import gradio as gr
-from typing import Any
-from Chatter.Judge.Judge import execute_code
+
 from Chatter.ChatBot.Chat import respond
-from Chatter.Utils.Listener import submit_background_listener
 from Chatter.GUI.Information import Header as heaader
 from Chatter.GUI.Information import Question as question
-from Chatter.GUI.Information import Header as heaader
+from Chatter.Judge.Judge import execute_code
 from Chatter.Judge.Plot import make_plot
-import pandas as pd
+from Chatter.Utils.Listener import submit_background_listener
+
 
 def init_submit_tab(*args, **kwargs):
-
     with gr.Tab("Submit Your Code") as submit_tab:
-        gr.Markdown(
-            heaader.submit_page_header
-        )
+        gr.Markdown(heaader.submit_page_header)
 
         with gr.Row(
             # variant="compact",
         ):
-            with gr.Column("Question part", variant="compact",):
-
+            with gr.Column(
+                "Question part",
+                variant="compact",
+            ):
                 with gr.Row():
-                    selected_homework_name = gr.Dropdown(
-                        label="⛳️ Select Homework", 
+                    selected_scope_name = gr.Dropdown(
+                        label="⛳️ Select Homework",
                         value=question.homework_sessions[0],
                         choices=question.homework_sessions,
                         interactive=True,
                     )
 
                     selected_question_name = gr.Dropdown(
-                        label="📸 Select Question", 
+                        label="📸 Select Question",
                         value=question.question_sessions[0],
                         choices=question.question_sessions,
                         interactive=True,
                     )
 
-                gr.Markdown(
-                    heaader.question_descriptions_header
-                )
+                gr.Markdown(heaader.question_descriptions_header)
 
                 question_description = gr.Markdown(
-                    question.homework_one_content_sessions[0], 
                     visible=True,
                 )
 
-            with gr.Column(variant="default",):
+            with gr.Column(
+                variant="default",
+            ):
                 gr.ChatInterface(
-                    fn=respond, 
+                    fn=respond,
                     # examples=["hello", "hola", "merhaba"],
                     additional_inputs=[
-                        selected_homework_name,
+                        selected_scope_name,
                         selected_question_name,
                     ],
                     undo_btn=None,
                 )
                 error_advice = gr.Textbox("如果你的程式碼有錯誤，建議將會顯示在這裡")
 
-        with gr.Row(variant="compact",):
-
+        with gr.Row(
+            variant="compact",
+        ):
             with gr.Column():
                 answer_code = gr.Code(
-                    label="Write Your code here", 
+                    label="Write Your code here",
                     language="python",
                     lines=10,
                     # info="Initial text",
@@ -84,11 +82,8 @@ def init_submit_tab(*args, **kwargs):
                         variant="primary",
                     )
 
-
             with gr.Column():
-                judged_result = gr.Markdown(
-                    f"### Results of your submission: "
-                )
+                judged_result = gr.Markdown(f"### Results of your submission: ")
 
                 # chatgpt_suggestion = gr.Markdown(
                 #     f"### Review by ChatGPT: "
@@ -118,24 +113,16 @@ def init_submit_tab(*args, **kwargs):
                         interactive=True,
                     )
 
-
     submit_code_btn.click(
-        execute_code, 
+        execute_code,
         inputs=[
             answer_code,
-            selected_homework_name,
+            selected_scope_name,
             selected_question_name,
-        ], 
-        outputs=[
-            judged_result,
-            error_advice
         ],
+        outputs=[judged_result, error_advice],
     )
 
-    submit_background_listener(
-        selected_homework_name,
-        selected_question_name,
-        question_description
-    )
+    submit_background_listener(selected_scope_name, selected_question_name, question_description)
 
     return submit_tab
