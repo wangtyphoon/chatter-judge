@@ -23,6 +23,7 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
 
+
 class Scope(Base):
     __tablename__ = "scopes"
     id = Column(
@@ -31,6 +32,7 @@ class Scope(Base):
     name = Column(String, unique=True, index=True, nullable=False)
 
     questions = relationship("Question", back_populates="scope", lazy="selectin")
+
 
 class Question(Base):
     __tablename__ = "questions"
@@ -76,6 +78,7 @@ async def init_default_data() -> None:
         # create default users if users table is empty
         if not (await session.execute(select(User))).scalars().first():
             from Chatter.Utils.Auth import get_password_hash
+
             admin = User(username="admin", password=get_password_hash("admin"))
             session.add(admin)
             await session.commit()

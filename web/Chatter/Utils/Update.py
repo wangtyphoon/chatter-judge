@@ -5,12 +5,9 @@ Author: @1chooo (Hugo ChunHo Lin)
 Version: v0.0.1
 """
 
-import asyncio
-
 import gradio as gr
 from sqlalchemy import select
 
-import Chatter.GUI.Information.Question as question
 from Chatter.Database.connection import get_db
 from Chatter.Database.models import Question
 
