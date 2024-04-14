@@ -65,6 +65,16 @@ $ mkdocs server
 $ mkdocs build
 ```
 
+### Format and Lint
+
+```shell
+# format the code
+$ ruff format .
+# check the code
+$ ruff check .
+# apply the autofix
+$ ruff check --fix .
+```
 
 ## License
 Released under [MIT](./LICENSE) by [Hugo ChunHo Lin](https://github.com/1chooo).
