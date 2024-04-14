@@ -10,8 +10,7 @@ import os
 import gradio as gr
 from fastapi import FastAPI
 
-from Chatter.GUI.Launch import (build_admin_management, build_chatter_judge,
-                                build_home_page)
+from Chatter.GUI.Launch import build_admin_management, build_chatter_judge, build_home_page
 
 FAVICON_PATH = os.path.join(".", "static", "favicon.ico")
 JUDGE_PATH = "/judge/"

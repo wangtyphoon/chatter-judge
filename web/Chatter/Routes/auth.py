@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import RedirectResponse
-from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,7 +30,7 @@ async def login(
             return RedirectResponse(url=ADMIN_PATH, status_code=status.HTTP_303_SEE_OTHER)
         return RedirectResponse(url=JUDGE_PATH, status_code=status.HTTP_303_SEE_OTHER)
     return RedirectResponse(
-        url=f"/?msg=Invalid username or password", status_code=status.HTTP_303_SEE_OTHER
+        url="/?msg=Invalid username or password", status_code=status.HTTP_303_SEE_OTHER
     )
 
 
@@ -45,13 +44,13 @@ async def register(
     user = (await db_session.execute(stmt)).scalars().first()
     if user:
         return RedirectResponse(
-            url=f"/?msg=Username already exists", status_code=status.HTTP_303_SEE_OTHER
+            url="/?msg=Username already exists", status_code=status.HTTP_303_SEE_OTHER
         )
     user = User(username=username, password=get_password_hash(password))
     db_session.add(user)
     await db_session.commit()
     return RedirectResponse(
-        url=f"/?msg=Registered successfully", status_code=status.HTTP_303_SEE_OTHER
+        url="/?msg=Registered successfully", status_code=status.HTTP_303_SEE_OTHER
     )
 
 

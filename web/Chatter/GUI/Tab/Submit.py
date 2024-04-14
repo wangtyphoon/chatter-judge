@@ -83,7 +83,7 @@ def init_submit_tab(*args, **kwargs):
                     )
 
             with gr.Column():
-                judged_result = gr.Markdown(f"### Results of your submission: ")
+                judged_result = gr.Markdown("### Results of your submission: ")
 
                 # chatgpt_suggestion = gr.Markdown(
                 #     f"### Review by ChatGPT: "

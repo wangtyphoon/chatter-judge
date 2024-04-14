@@ -69,7 +69,7 @@ async def execute_code(code: str, scope: str, question_name: str):
             msg = bytes.fromhex(msg)
             if msg.strip() == input_and_output.output.strip().encode():
                 return "### Your code results: AC", "AC"
-            return f"### Your code results: WA", "WA"
+            return "### Your code results: WA", "WA"
         elif status == Result.RUNTIME_ERROR:
             # TODO: Maybe need to escape the message before rendering
             return f"### Your code results: {result['status']}\n{bytes.fromhex(msg)}", "RE"
