@@ -63,7 +63,10 @@ async def execute_code(code: str, scope: str, question_name: str):
         result = r.json()
         status = Result(result["status"])
         msg = result["msg"]
-        print(f"{code}\n{result['status']}\n{msg}")
+
+        print(f"{code}\n{result['status']}\n{msg}") #輸出要code advice模型之輸入
+        print(input_and_output.output.strip().encode()) #輸出題目要的答案
+
         if status == Result.SUCCESS:
             # TODO: Handle the message
             msg = bytes.fromhex(msg)

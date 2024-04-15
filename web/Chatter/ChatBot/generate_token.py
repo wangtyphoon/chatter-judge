@@ -1,5 +1,5 @@
 from google_auth_oauthlib.flow import InstalledAppFlow
-
+#產生可以使用finetune模型的權限
 SCOPES = ["https://www.googleapis.com/auth/generative-language.tuning"]
 
 
@@ -15,9 +15,8 @@ def load_creds():
     creds = flow.run_local_server()
 
     # Save the credentials for the next run
-    with open("token1.json", "w") as token:
+    with open("token.json", "w") as token:
         token.write(creds.to_json())
     return creds
-
 
 load_creds()
