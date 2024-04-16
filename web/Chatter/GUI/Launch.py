@@ -12,6 +12,7 @@ import gradio as gr
 from Chatter.GUI.Information import Header as header  # 標題資訊
 from Chatter.GUI.Tab import History as history  # 歷史記錄頁面
 from Chatter.GUI.Tab import Submit as submit  # 提交頁面
+from Chatter.GUI.Tab import admin as admin_set  # 管理頁面
 #(https://i.imgur.com/aWUPj3S.png)
 
 css_button = """button{
@@ -79,6 +80,7 @@ def build_admin_management(*args: Any, **kwargs: Any) -> gr.Blocks:
 Welcome, admin! This is the admin page for Chatter Judge.
 WIP"""  # 保持英文
         )  # 顯示管理面板標題和說明
+        admin_tab = admin_set.init_admin_tab()
 
     return admin
 
