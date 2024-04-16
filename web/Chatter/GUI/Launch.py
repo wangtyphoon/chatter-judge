@@ -9,33 +9,158 @@ from typing import Any
 
 import gradio as gr
 
+from Chatter.ChatBot.Chat import respond
 from Chatter.GUI.Information import Header as header  # 標題資訊
 from Chatter.GUI.Tab import History as history  # 歷史記錄頁面
-from Chatter.GUI.Tab import Submit as submit  # 提交頁面
 from Chatter.GUI.Tab import admin as admin_set  # 管理頁面
-#(https://i.imgur.com/aWUPj3S.png)
+from Chatter.Judge.Judge import execute_code
+from Chatter.Judge.Plot import make_plot
+from Chatter.Utils.Update import (
+    get_question_description,
+    update_question_dropdown_and_description,
+    update_scope_dropdown,
+)
 
 css_button = """button{
                 font-family:Freestyle Script;
                 float: right;
                 }"""
 
+
 def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
     """構建 Chatter Judge 頁面"""
 
-    #demo = gr.Blocks(title="Chatter Judge")  # 頁面標題
+    # demo = gr.Blocks(title="Chatter Judge")  # 頁面標題
 
     with gr.Blocks(title="Chatter Judge", css=css_button) as demo:
-        gr.Markdown("""<div align=center>
+        gr.Markdown(
+            """<div align=center>
                     <img src="https://i.imgur.com/mGJbbMN.png" width=200>
-                    </div>""",scale=2)  # 顯示 EE Judge 標題(icon)
-        #gr.Markdown(header.ee_judge_header)  # 顯示 EE Judge 標題(先以icon替換)
+                    </div>""",
+            scale=2,
+        )  # 顯示 EE Judge 標題(icon)
+        # gr.Markdown(header.ee_judge_header)  # 顯示 EE Judge 標題(先以icon替換)
 
-        logout_btn = gr.Button("Logout", elem_id="logout", interactive=True, variant='primary')#待進一步實驗
-        
+        gr.Button("Logout", elem_id="logout", interactive=True, variant="primary")  # 待進一步實驗
+
         # 初始化提交和歷史記錄頁面
-        submit_tab = submit.init_submit_tab()
-        history_tab = history.init_history_tab()
+        with gr.Tab("Submit Your Code"):
+            gr.Markdown(header.submit_page_header)
+
+            with gr.Row():
+                with gr.Column(
+                    "Question part",
+                    variant="compact",
+                ):
+                    with gr.Row():
+                        selected_scope_name = gr.Dropdown(
+                            label="⛳️ Select Homework",
+                            interactive=True,
+                        )
+
+                        selected_question_name = gr.Dropdown(
+                            label="📸 Select Question",
+                            interactive=True,
+                        )
+
+                    gr.Markdown(header.question_descriptions_header)
+
+                    question_description = gr.Markdown(
+                        visible=True,
+                    )
+
+                with gr.Column(
+                    variant="default",
+                ):
+                    gr.ChatInterface(
+                        fn=respond,
+                        additional_inputs=[
+                            selected_scope_name,
+                            selected_question_name,
+                        ],
+                        undo_btn=None,
+                    )
+                    error_advice = gr.Textbox(
+                        "如果你的程式碼有錯誤，建議將會顯示在這裡", label="Code advice"
+                    )
+
+            with gr.Row(
+                variant="compact",
+            ):
+                with gr.Column():
+                    answer_code = gr.Code(
+                        label="Write Your code here",
+                        language="python",
+                        lines=10,
+                    )
+
+                    with gr.Row():
+                        gr.Button(
+                            value="🗑️  Clear",
+                            variant="secondary",
+                        )
+                        submit_code_btn = gr.Button(
+                            value="Submit",
+                            variant="primary",
+                        )
+
+                with gr.Column():
+                    judged_result = gr.Markdown("### Results of your submission: ")
+
+                    # chatgpt_suggestion = gr.Markdown(
+                    #     f"### Review by ChatGPT: "
+                    # )
+                    with gr.Row():
+                        gr.Plot(
+                            value=make_plot("scatter_plot"),
+                            label="Plotttttt",
+                            scale=4,
+                            interactive=True,
+                            # show_actions_button=True,
+                        )
+
+                        gr.Radio(
+                            scale=1,
+                            label="Plot type",
+                            choices=[
+                                "AC",
+                                "WA",
+                                "TLE",
+                                "MLE",
+                                "RE",
+                                "CE",
+                                "ChatGPT",
+                            ],
+                            value="AC",
+                            interactive=True,
+                        )
+
+            submit_code_btn.click(
+                execute_code,
+                inputs=[
+                    answer_code,
+                    selected_scope_name,
+                    selected_question_name,
+                ],
+                outputs=[judged_result, error_advice],
+            )
+
+            selected_question_name.change(
+                fn=get_question_description,
+                inputs=[
+                    selected_scope_name,
+                    selected_question_name,
+                ],
+                outputs=question_description,
+            )
+
+            selected_scope_name.change(
+                fn=update_question_dropdown_and_description,
+                inputs=selected_scope_name,
+                outputs=[selected_question_name, question_description],
+            )
+
+        history.init_history_tab()
 
         # 使用 Tab 顯示不同頁面
         with gr.Tab("Race Bar"):
@@ -45,22 +170,17 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
         with gr.Tab("Judge Developers"):
             gr.Markdown(header.judger_developer_page_header)  # 顯示評判開發者頁面標題
 
-        
-        #gr.Button("Logout", elem_id="logout", interactive=True)  # 登出按钮    
-        #with gr.Tab("Logout(New)"):
-        #    gr.Button("Logout", elem_id="logout2", interactive=True, size='sm', min_width=1, link="http://localhost:5002/auth/logout")  # 登出按钮
-        
         demo.load(
+            fn=update_scope_dropdown,
+            outputs=selected_scope_name,
             _js="""\
 document.getElementById("logout").style.height="50px",
 document.getElementById("logout").style.width="70px",
 document.getElementById("logout").onclick = (() => {
     window.location.href = "http://localhost:5002/auth/logout";
 }),
-()=>{}""".strip()
+()=>{}""".strip(),
         )  # 加载 JS 代码处理登录逻辑
-
-
 
     # 暫時禁用身份驗證
     # demo.auth = auth.auth_admin
@@ -80,9 +200,10 @@ def build_admin_management(*args: Any, **kwargs: Any) -> gr.Blocks:
 Welcome, admin! This is the admin page for Chatter Judge.
 WIP"""  # 保持英文
         )  # 顯示管理面板標題和說明
-        admin_tab = admin_set.init_admin_tab()
+        admin_set.init_admin_tab()
 
     return admin
+
 
 css = """h1{
             Color:rgb(255, 0 , 255);
@@ -91,7 +212,7 @@ css = """h1{
             font-size:64px;
             }"""
 
-#color無用、size直接帶html、其餘有效
+# color無用、size直接帶html、其餘有效
 
 
 def build_home_page() -> gr.Blocks:
