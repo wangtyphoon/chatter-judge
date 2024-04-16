@@ -11,7 +11,6 @@ from sqlalchemy import select
 from Chatter.Database.connection import get_db
 from Chatter.Database.models import Question
 
-
 async def get_question_description(scope_name: str, question_name: str) -> gr.Markdown:
     description = None
 

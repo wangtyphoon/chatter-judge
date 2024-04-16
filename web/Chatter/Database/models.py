@@ -110,3 +110,45 @@ async def init_default_data() -> None:
             )
             session.add(input_and_output)
             await session.commit()
+
+async def add_question(name,description,scope_name,input,output):
+    async for session in get_db():
+
+        existing_scope = await session.execute(select(Scope).where(Scope.name == scope_name))
+        scope = existing_scope.scalars().first()
+
+        if not scope:
+            scope = Scope(name=scope_name)
+            session.add(scope)
+            await session.commit()
+            
+            question = Question(name=name, description=description, scope_id=scope.id)
+            session.add(question)
+            await session.commit()
+
+            input_and_output = InputAndOutput(input=input, output=output, question_id=question.id)
+            session.add(input_and_output)
+            await session.commit()
+
+            return "題目新增成功!"
+        else:
+            existing_question = await session.execute(
+                select(Question).where(Question.name == name and Question.scope_id == scope.id))
+            question = existing_question.scalars().first()
+            question.description = description
+            # 檢查 InputAndOutput 是否存在，不存在則新增
+            existing_input_and_output = await session.execute(
+                select(InputAndOutput).where(InputAndOutput.question_id == question.id)
+            )
+            input_and_output_obj = existing_input_and_output.scalars().first()
+            if not input_and_output_obj:
+                input_and_output_obj = InputAndOutput(input=input, output=output, question_id=question.id)
+                session.add(input_and_output_obj)
+            else:
+                # 更新 InputAndOutput
+                input_and_output_obj.input = input
+                input_and_output_obj.output = output
+            await session.commit()
+            return "題目更新成功!"
+
+    
