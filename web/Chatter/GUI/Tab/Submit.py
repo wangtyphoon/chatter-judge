@@ -59,7 +59,9 @@ def init_submit_tab(*args, **kwargs):
                     ],
                     undo_btn=None,
                 )
-                error_advice = gr.Textbox("如果你的程式碼有錯誤，建議將會顯示在這裡",label="Code advice")
+                error_advice = gr.Textbox(
+                    "如果你的程式碼有錯誤，建議將會顯示在這裡", label="Code advice"
+                )
 
         with gr.Row(
             variant="compact",
