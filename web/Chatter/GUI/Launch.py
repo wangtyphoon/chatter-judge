@@ -22,7 +22,6 @@ from Chatter.Utils.Update import (
 )
 
 css_button = """button{
-                font-family:Freestyle Script;
                 float: right;
                 }"""
 
@@ -33,15 +32,19 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
     # demo = gr.Blocks(title="Chatter Judge")  # 頁面標題
 
     with gr.Blocks(title="Chatter Judge", css=css_button) as demo:
+        
         gr.Markdown(
             """<div align=center>
                     <img src="https://i.imgur.com/mGJbbMN.png" width=200>
-                    </div>""",
-            scale=2,
-        )  # 顯示 EE Judge 標題(icon)
-        # gr.Markdown(header.ee_judge_header)  # 顯示 EE Judge 標題(先以icon替換)
-
-        gr.Button("Logout", elem_id="logout", interactive=True, variant="primary")  # 待進一步實驗
+                    </div>""",)
+        #    scale=4,
+        #)  # 顯示 EE Judge 標題(icon)
+            # gr.Markdown(header.ee_judge_header)  # 顯示 EE Judge 標題(先以icon替換)
+        gr.Markdown("""<button id=logout style="font-size:30px; font-weight:bold; text-decoration: underline; font-family:Freestyle Script;">Logout</button>""")#, scale=4)
+        """
+        with gr.Row():
+            
+            gr.Button("Logout", elem_id="logout", interactive=True, variant="primary", scale=1)  # 待進一步實驗"""
 
         # 初始化提交和歷史記錄頁面
         with gr.Tab("Submit Your Code"):
