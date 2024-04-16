@@ -9,7 +9,7 @@ import gradio as gr
 from sqlalchemy import select
 
 from Chatter.Database.connection import get_db
-from Chatter.Database.models import Question
+from Chatter.Database.models import Question, Scope
 
 
 async def get_question_description(scope_name: str, question_name: str) -> gr.Markdown:
@@ -29,3 +29,35 @@ async def get_question_description(scope_name: str, question_name: str) -> gr.Ma
                 return gr.Markdown(description)
 
     return gr.Markdown("No description found for this question.")
+
+
+async def update_scope_dropdown() -> gr.Dropdown:
+    async for session in get_db():
+        stmt = select(Scope)
+        scopes = (await session.execute(stmt)).scalars().all()
+        print(scopes)
+        return gr.Dropdown(
+            label="⛳️ Select Homework",
+            choices=[s.name for s in scopes],
+            interactive=True,
+        )
+
+
+async def update_question_dropdown_and_description(scope_name: str) -> gr.Dropdown:
+    if not scope_name:
+        raise ValueError("scope_name is required")
+    print(scope_name)
+    async for session in get_db():
+        stmt = select(Question).where(Question.scope.has(name=scope_name))
+        questions = (await session.execute(stmt)).scalars().all()
+        print(questions)
+        first_question = questions[0] if questions else None
+        first_description = None
+        if first_question:
+            first_description = first_question.description
+        return gr.Dropdown(
+            label="📸 Select Question",
+            value=questions[0].name if questions else None,
+            choices=[q.name for q in questions],
+            interactive=True,
+        ), gr.Markdown(first_description or "No question found")
