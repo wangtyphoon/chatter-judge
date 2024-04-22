@@ -64,18 +64,24 @@ async def execute_code(code: str, scope: str, question_name: str):
         status = Result(result["status"])
         msg = result["msg"]
 
-        print(f"{code}\n{result['status']}\n{msg}")  # 輸出要code advice模型之輸入
-        print(input_and_output.output.strip().encode())  # 輸出題目要的答案
+        
 
         if status == Result.SUCCESS:
             # TODO: Handle the message
             msg = bytes.fromhex(msg)
             if msg.strip() == input_and_output.output.strip().encode():
-                return "### Your code results: AC", "AC"
-            return "### Your code results: WA", "WA"
+                text = await code_advice(f"{code}\n{result['status']}\n{'AC'}")
+                print(f"{code}\n{result['status']}\n{'AC'}")
+                return "### Your code results: AC", text
+            text = await code_advice(f"{code}\n{result['status']}\n{'WA'}")
+            print(f"{code}\n{result['status']}\n{'WA'}")
+            return "### Your code results: WA", text
         elif status == Result.RUNTIME_ERROR:
             # TODO: Maybe need to escape the message before rendering
-            return f"### Your code results: {result['status']}\n{bytes.fromhex(msg)}", "RE"
+            text = await code_advice(f"{code}\n{result['status']}\n{msg}")
+            print(f"{code}\n{result['status']}")
+            return f"### Your code results: {result['status']}\n{bytes.fromhex(msg)}", text
 
         text = await code_advice(f"{code}\n{result['status']}\n{msg}")
+        print(f"{code}\n{result['status']}\n{msg}")
         return f"### Your code results: {result['status']}\n{msg}", text
