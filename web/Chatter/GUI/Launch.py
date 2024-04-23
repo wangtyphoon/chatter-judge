@@ -195,7 +195,7 @@ document.getElementById("logout").onclick = (() => {
 def build_admin_management(*args: Any, **kwargs: Any) -> gr.Blocks:
     """構建管理面板頁面"""
 
-    admin = gr.Blocks(title="Chatter Admin")  # 頁面標題
+    admin = gr.Blocks(title="Chatter Admin",css=css_button)  # 頁面標題
 
     with admin:
         gr.Markdown(
