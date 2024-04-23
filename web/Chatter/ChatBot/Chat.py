@@ -37,11 +37,6 @@ async def respond(
         {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
     ]
     prompt = []
-    model = genai.GenerativeModel(
-        model_name="gemini-1.0-pro",
-        generation_config=generation_config,
-        safety_settings=safety_settings,
-    )
 
     # 模型回應函式 (model_response)
     def model_response(text):
@@ -72,10 +67,33 @@ async def respond(
     user_input = user_word(message)
     prompt.append(user_input)
     print(prompt)
-    try:
+
+    if len(str(message)) >= 20: #複雜問題使用複雜模型
+        try:
+            print("1.5pro")
+            model = genai.GenerativeModel(
+                model_name="gemini-1.5-pro-latest",
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+            )
+            response = model.generate_content(prompt)
+        except Exception:
+            # 出现错误时切换到 1.0pro 模型
+            print("over 1.5 pro limit")
+            model = genai.GenerativeModel(
+                model_name="gemini-1.0-pro",
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+            )
+            response = model.generate_content(prompt)
+    else:
+        model = genai.GenerativeModel(
+            model_name="gemini-1.0-pro",
+            generation_config=generation_config,
+            safety_settings=safety_settings,
+        )
         response = model.generate_content(prompt)
-    except Exception:
-        raise ValueError(f"API response error: {response}")
+
     model_output = model_response(response.text)
     prompt.append(model_output)
 
