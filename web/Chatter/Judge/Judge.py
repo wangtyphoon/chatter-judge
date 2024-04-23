@@ -12,6 +12,7 @@ import httpx
 from sqlalchemy import select
 
 from Chatter.ChatBot.finetune import code_advice
+from Chatter.ChatBot.structure_prompt import structured_prompt
 from Chatter.Database.connection import get_db
 from Chatter.Database.models import InputAndOutput, Question
 
@@ -70,18 +71,28 @@ async def execute_code(code: str, scope: str, question_name: str):
             # TODO: Handle the message
             msg = bytes.fromhex(msg)
             if msg.strip() == input_and_output.output.strip().encode():
-                text = await code_advice(f"{code}\n{result['status']}\n{'AC'}")
-                print(f"{code}\n{result['status']}\n{'AC'}")
+                try:
+                    text = await code_advice(f"{code}\n{result['status']}\n{'AC'}")
+                except:
+                    text = await structured_prompt(f"{code}\n{result['status']}\n{'AC'}") 
                 return "### Your code results: AC", text
-            text = await code_advice(f"{code}\n{result['status']}\n{'WA'}")
-            print(f"{code}\n{result['status']}\n{'WA'}")
+            
+            try:
+                text = await code_advice(f"{code}\n{result['status']}\n{'WA'}")
+            except:
+                text = await structured_prompt(f"{code}\n{result['status']}\n{'WA'}")
             return "### Your code results: WA", text
+            
         elif status == Result.RUNTIME_ERROR:
             # TODO: Maybe need to escape the message before rendering
-            text = await code_advice(f"{code}\n{result['status']}\n{msg}")
-            print(f"{code}\n{result['status']}")
+            try:
+                text = await code_advice(f"{code}\n{result['status']}\n{msg}")
+            except:
+                text = await structured_prompt(f"{code}\n{result['status']}\n{msg}")
             return f"### Your code results: {result['status']}\n{bytes.fromhex(msg)}", text
-
-        text = await code_advice(f"{code}\n{result['status']}\n{msg}")
-        print(f"{code}\n{result['status']}\n{msg}")
+                
+        try:
+            text = await code_advice(f"{code}\n{result['status']}\n{msg}")
+        except:
+            text = await structured_prompt(f"{code}\n{result['status']}\n{msg}")
         return f"### Your code results: {result['status']}\n{msg}", text
