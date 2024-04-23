@@ -83,3 +83,7 @@ This software can be modified and reused without restriction.
 The original license must be included with any copies of this software.
 If a significant portion of the source code is used, please provide a link back to this repository.
 
+## gemini api emthod 
+```shell
+# api key for gemini 1.0 pro(chatbot)
+# token.json for code advice from finetune model
