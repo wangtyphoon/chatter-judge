@@ -71,11 +71,7 @@ async def execute_code(code: str, scope: str, question_name: str):
             # TODO: Handle the message
             msg = bytes.fromhex(msg)
             if msg.strip() == input_and_output.output.strip().encode():
-                try:
-                    text = await code_advice(f"{code}\n{result['status']}\n{'AC'}")
-                except:
-                    text = await structured_prompt(f"{code}\n{result['status']}\n{'AC'}") 
-                return "### Your code results: AC", text
+                return "### Your code results: AC", "*congratulation!"
             
             try:
                 text = await code_advice(f"{code}\n{result['status']}\n{'WA'}")
