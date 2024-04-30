@@ -1,6 +1,6 @@
 import time
 
-from sqlalchemy import Column, ForeignKey, Text, Integer, select, DateTime, func, LargeBinary
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, LargeBinary, Text, func, select
 from sqlalchemy.orm import declarative_base, relationship
 
 from .connection import engine, get_db
@@ -15,9 +15,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(
-        Integer, primary_key=True, index=True, nullable=False
-    )
+    id = Column(Integer, primary_key=True, index=True, nullable=False)
     username = Column(Text, unique=True, index=True, nullable=False)
     password = Column(Text, nullable=False)
 
@@ -26,9 +24,7 @@ class User(Base):
 
 class Scope(Base):
     __tablename__ = "scopes"
-    id = Column(
-        Integer, primary_key=True, index=True, nullable=False
-    )
+    id = Column(Integer, primary_key=True, index=True, nullable=False)
     name = Column(Text, unique=True, index=True, nullable=False)
 
     questions = relationship("Question", back_populates="scope", lazy="selectin")
@@ -37,9 +33,7 @@ class Scope(Base):
 class Question(Base):
     __tablename__ = "questions"
 
-    id = Column(
-        Integer, primary_key=True, index=True, nullable=False
-    )
+    id = Column(Integer, primary_key=True, index=True, nullable=False)
     scope_id = Column(Integer, ForeignKey("scopes.id"), nullable=False)
     name = Column(Text, nullable=False)
     description = Column(Text, nullable=False)
@@ -52,21 +46,18 @@ class Question(Base):
 class InputAndOutput(Base):
     __tablename__ = "input_and_outputs"
 
-    id = Column(
-        Integer, primary_key=True, index=True, nullable=False
-    )
+    id = Column(Integer, primary_key=True, index=True, nullable=False)
     input = Column(Text, nullable=False)
     output = Column(Text, nullable=False)
     question_id = Column(Integer, ForeignKey("questions.id"), nullable=False)
 
     question = relationship("Question", back_populates="input_and_outputs", lazy="selectin")
 
+
 class Submission(Base):
     __tablename__ = "submissions"
 
-    id = Column(
-        Integer, primary_key=True, index=True, nullable=False
-    )
+    id = Column(Integer, primary_key=True, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), default=func.now())
     code = Column(Text, nullable=False)
     question_id = Column(Integer, ForeignKey("questions.id"), nullable=False)

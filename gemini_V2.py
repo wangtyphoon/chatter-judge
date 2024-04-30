@@ -1,5 +1,6 @@
 import time
-#hihihihihihhi
+
+# hihihihihihhi
 import google.generativeai as genai
 
 genai.configure(api_key="AIzaSyCXCXxAcCQKxv-VAm7E0UnTNINXf3svPew")

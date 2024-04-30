@@ -8,9 +8,9 @@ Version: v0.0.1
 import os
 from enum import Enum
 
+import gradio as gr
 import httpx
 from sqlalchemy import select
-import gradio as gr
 
 from Chatter.ChatBot.finetune import code_advice
 from Chatter.ChatBot.structure_prompt import structured_prompt
@@ -27,6 +27,7 @@ class RunStatus(str, Enum):
     RUNTIME_ERROR = "runtime_error"
     TIME_LIMIT_EXCEED = "time_limit_exceed"
 
+
 class AnswerStatus(Enum):
     AC = 0
     WA = 1
@@ -34,7 +35,10 @@ class AnswerStatus(Enum):
     RE = 3
     TLE = 4
 
-async def save_submission(user_id: int, code: str, question_name: str, status: int, output: bytes, ai_suggestion: str) -> None:
+
+async def save_submission(
+    user_id: int, code: str, question_name: str, status: int, output: bytes, ai_suggestion: str
+) -> None:
     async for session in get_db():
         stmt = select(Question).where(Question.name == question_name)
         question = (await session.execute(stmt)).scalars().first()
@@ -51,6 +55,7 @@ async def save_submission(user_id: int, code: str, question_name: str, status: i
         )
         session.add(submission)
         await session.commit()
+
 
 async def execute_code(request: gr.Request, code: str, scope: str, question_name: str):
     if not code:
@@ -85,7 +90,7 @@ async def execute_code(request: gr.Request, code: str, scope: str, question_name
             raise ValueError("Backend timeout")
         if r.status_code != 200:
             raise ValueError("Backend error")
-        
+
         result = r.json()
         print(result)
         run_status = RunStatus(result["status"])
@@ -135,4 +140,3 @@ async def execute_code(request: gr.Request, code: str, scope: str, question_name
             result += f"```python-traceback\n{output.decode()}\n```"
 
         return result, ai_suggestion
-
