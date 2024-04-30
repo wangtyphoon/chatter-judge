@@ -25,7 +25,8 @@ async def login(
     stmt = select(User).where(User.username == username)
     user = (await db_session.execute(stmt)).scalars().first()
     if user and verify_password(password, user.password):
-        request.session["user"] = username
+        request.session["user"] = user.id
+        request.session["is_admin"] = username == "admin"
         if username == "admin":
             return RedirectResponse(url=ADMIN_PATH, status_code=status.HTTP_303_SEE_OTHER)
         return RedirectResponse(url=JUDGE_PATH, status_code=status.HTTP_303_SEE_OTHER)
@@ -58,4 +59,4 @@ async def register(
 @router.get("/logout")
 async def logout(request: Request) -> RedirectResponse:
     request.session.clear()  # 清除 Session 數據
-    return RedirectResponse(url="/", status_code=303)  # 重定向到首頁
+    return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)  # 重定向到首頁

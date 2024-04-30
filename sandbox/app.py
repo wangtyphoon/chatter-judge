@@ -12,7 +12,7 @@ class RunCode(BaseModel):
     input: str
 
 
-class Result(str, Enum):
+class RunStatus(str, Enum):
     SUCCESS = "success"
     COMPILE_ERROR = "compile_error"
     RUNTIME_ERROR = "runtime_error"
@@ -29,7 +29,7 @@ def run(run_code: RunCode, background_tasks: BackgroundTasks):
     try:
         compile(run_code.code, "string", "exec")
     except Exception as e:
-        return {"status": Result.COMPILE_ERROR, "msg": str(e)}
+        return {"status": RunStatus.COMPILE_ERROR, "output": str(e).encode().hex()}
 
     temp_file = tempfile.mktemp()
 
@@ -58,10 +58,10 @@ def run(run_code: RunCode, background_tasks: BackgroundTasks):
     except subprocess.TimeoutExpired:
         proc.kill()
         os.remove(temp_file)
-        return {"status": Result.TIME_LIMIT_EXCEED, "msg": ""}
+        return {"status": RunStatus.TIME_LIMIT_EXCEED, "output": ""}
 
     background_tasks.add_task(os.remove, temp_file)
 
     if proc.returncode == 0:
-        return {"status": Result.SUCCESS, "msg": stdout.hex()}
-    return {"status": Result.RUNTIME_ERROR, "msg": stderr.hex()}
+        return {"status": RunStatus.SUCCESS, "output": stdout.hex()}
+    return {"status": RunStatus.RUNTIME_ERROR, "output": stderr.hex()}

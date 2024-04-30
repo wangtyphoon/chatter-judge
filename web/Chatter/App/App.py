@@ -59,13 +59,12 @@ app = build_and_mount_playground(app)
 @app.middleware("http")
 async def check_auth(request: Request, call_next):
     current_user = request.session.get("user")  # 獲取當前用户信息
+    is_admin = request.session.get("is_admin")
     if not current_user and any(
         request.url.path.startswith(path) for path in AUTH_NEEDED_PATH
     ):  # 未登錄且請求路徑需要身份驗證
         return RedirectResponse(url="/", status_code=303)  # 重定向到首頁
-    if (
-        request.url.path.startswith(ADMIN_PATH) and current_user != "admin"
-    ):  # 請求管理頁面但不是管理員
+    if request.url.path.startswith(ADMIN_PATH) and not is_admin:  # 請求管理頁面但不是管理員
         return JSONResponse(status_code=403, content={"message": "Not authorized"})  # 返回 403 錯誤
     return await call_next(request)  # 调用下一個中介軟體或路由
 

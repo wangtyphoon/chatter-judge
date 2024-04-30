@@ -32,15 +32,17 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
     # demo = gr.Blocks(title="Chatter Judge")  # 頁面標題
 
     with gr.Blocks(title="Chatter Judge", css=css_button) as demo:
-        
         gr.Markdown(
             """<div align=center>
                     <img src="https://i.imgur.com/mGJbbMN.png" width=200>
-                    </div>""",)
+                    </div>""",
+        )
         #    scale=4,
-        #)  # 顯示 EE Judge 標題(icon)
-            # gr.Markdown(header.ee_judge_header)  # 顯示 EE Judge 標題(先以icon替換)
-        gr.Markdown("""<button id=logout style="font-size:30px; font-weight:bold; text-decoration: underline; font-family:Freestyle Script;">Logout</button>""")#, scale=4)
+        # )  # 顯示 EE Judge 標題(icon)
+        # gr.Markdown(header.ee_judge_header)  # 顯示 EE Judge 標題(先以icon替換)
+        gr.Markdown(
+            """<button id=logout style="font-size:30px; font-weight:bold; text-decoration: underline; font-family:Freestyle Script;">Logout</button>"""
+        )  # , scale=4)
         """
         with gr.Row():
             
@@ -83,7 +85,7 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
                         ],
                         undo_btn=None,
                     )
-                    error_advice = gr.Textbox(
+                    error_advice = gr.Markdown(
                         "如果你的程式碼有錯誤，建議將會顯示在這裡", label="Code advice"
                     )
 
@@ -195,7 +197,7 @@ document.getElementById("logout").onclick = (() => {
 def build_admin_management(*args: Any, **kwargs: Any) -> gr.Blocks:
     """構建管理面板頁面"""
 
-    admin = gr.Blocks(title="Chatter Admin",css=css_button)  # 頁面標題
+    admin = gr.Blocks(title="Chatter Admin", css=css_button)  # 頁面標題
 
     with admin:
         gr.Markdown(
