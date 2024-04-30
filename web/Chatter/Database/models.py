@@ -1,8 +1,6 @@
 import time
-import uuid
 
-from sqlalchemy import Column, ForeignKey, String, select
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, ForeignKey, Text, Integer, select, DateTime, func, LargeBinary
 from sqlalchemy.orm import declarative_base, relationship
 
 from .connection import engine, get_db
@@ -18,18 +16,20 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True, nullable=False
+        Integer, primary_key=True, index=True, nullable=False
     )
-    username = Column(String, unique=True, index=True, nullable=False)
-    password = Column(String, nullable=False)
+    username = Column(Text, unique=True, index=True, nullable=False)
+    password = Column(Text, nullable=False)
+
+    submissions = relationship("Submission", back_populates="user", lazy="selectin")
 
 
 class Scope(Base):
     __tablename__ = "scopes"
     id = Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True, nullable=False
+        Integer, primary_key=True, index=True, nullable=False
     )
-    name = Column(String, unique=True, index=True, nullable=False)
+    name = Column(Text, unique=True, index=True, nullable=False)
 
     questions = relationship("Question", back_populates="scope", lazy="selectin")
 
@@ -38,27 +38,45 @@ class Question(Base):
     __tablename__ = "questions"
 
     id = Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True, nullable=False
+        Integer, primary_key=True, index=True, nullable=False
     )
-    scope_id = Column(UUID(as_uuid=True), ForeignKey("scopes.id"), nullable=False)
-    name = Column(String, nullable=False)
-    description = Column(String, nullable=False)
+    scope_id = Column(Integer, ForeignKey("scopes.id"), nullable=False)
+    name = Column(Text, nullable=False)
+    description = Column(Text, nullable=False)
 
     scope = relationship("Scope", back_populates="questions", lazy="selectin")
     input_and_outputs = relationship("InputAndOutput", back_populates="question", lazy="selectin")
+    submissions = relationship("Submission", back_populates="question", lazy="selectin")
 
 
 class InputAndOutput(Base):
     __tablename__ = "input_and_outputs"
 
     id = Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True, nullable=False
+        Integer, primary_key=True, index=True, nullable=False
     )
-    input = Column(String, nullable=False)
-    output = Column(String, nullable=False)
-    question_id = Column(UUID(as_uuid=True), ForeignKey("questions.id"), nullable=False)
+    input = Column(Text, nullable=False)
+    output = Column(Text, nullable=False)
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False)
 
     question = relationship("Question", back_populates="input_and_outputs", lazy="selectin")
+
+class Submission(Base):
+    __tablename__ = "submissions"
+
+    id = Column(
+        Integer, primary_key=True, index=True, nullable=False
+    )
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    code = Column(Text, nullable=False)
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    status = Column(Integer, nullable=False)
+    output = Column(LargeBinary, nullable=True)
+    ai_suggestion = Column(Text, nullable=True)
+
+    question = relationship("Question", back_populates="submissions", lazy="selectin")
+    user = relationship("User", back_populates="submissions", lazy="selectin")
 
 
 async def init_models() -> None:

@@ -10,30 +10,54 @@ from enum import Enum
 
 import httpx
 from sqlalchemy import select
+import gradio as gr
 
 from Chatter.ChatBot.finetune import code_advice
 from Chatter.ChatBot.structure_prompt import structured_prompt
 from Chatter.Database.connection import get_db
-from Chatter.Database.models import InputAndOutput, Question
+from Chatter.Database.models import InputAndOutput, Question, Submission
 
 TIMEOUT = 15
 SANDBOX_URL = os.environ["SANDBOX_URL"]
 
 
-class Result(str, Enum):
+class RunStatus(str, Enum):
     SUCCESS = "success"
     COMPILE_ERROR = "compile_error"
     RUNTIME_ERROR = "runtime_error"
     TIME_LIMIT_EXCEED = "time_limit_exceed"
 
+class AnswerStatus(Enum):
+    AC = 0
+    WA = 1
+    CE = 2
+    RE = 3
+    TLE = 4
 
-async def execute_code(code: str, scope: str, question_name: str):
+async def save_submission(user_id: int, code: str, question_name: str, status: int, output: bytes, ai_suggestion: str) -> None:
+    async for session in get_db():
+        stmt = select(Question).where(Question.name == question_name)
+        question = (await session.execute(stmt)).scalars().first()
+        if not question:
+            raise ValueError("Question not found")
+
+        submission = Submission(
+            user_id=user_id,
+            question_id=question.id,
+            code=code,
+            status=status,
+            output=output,
+            ai_suggestion=ai_suggestion,
+        )
+        session.add(submission)
+        await session.commit()
+
+async def execute_code(request: gr.Request, code: str, scope: str, question_name: str):
     if not code:
         raise ValueError("Code is empty")
     if len(code) > 5000:
         # XXX: Is this a good limit?
         raise ValueError("Code is too long")
-
     async for session in get_db():
         stmt = (
             select(Question)
@@ -58,37 +82,57 @@ async def execute_code(code: str, scope: str, question_name: str):
                 timeout=TIMEOUT,
             )
         except httpx.TimeoutException:
-            return "### Backend timeout", "error"
+            raise ValueError("Backend timeout")
         if r.status_code != 200:
-            return "### Unknown error", "error"
-        result = r.json()
-        status = Result(result["status"])
-        msg = result["msg"]
-
+            raise ValueError("Backend error")
         
+        result = r.json()
+        print(result)
+        run_status = RunStatus(result["status"])
+        output = bytes.fromhex(result["output"]).strip()
 
-        if status == Result.SUCCESS:
-            # TODO: Handle the message
-            msg = bytes.fromhex(msg)
-            if msg.strip() == input_and_output.output.strip().encode():
-                return "### Your code results: AC", "*congratulation!"
-            
+        answer_status = None
+        expected_output = input_and_output.output.strip().encode()
+
+        if run_status == RunStatus.SUCCESS:
+            answer_status = AnswerStatus.AC if output == expected_output else AnswerStatus.WA
+        elif run_status == RunStatus.COMPILE_ERROR:
+            answer_status = AnswerStatus.CE
+        elif run_status == RunStatus.RUNTIME_ERROR:
+            answer_status = AnswerStatus.RE
+        elif run_status == RunStatus.TIME_LIMIT_EXCEED:
+            answer_status = AnswerStatus.TLE
+
+        assert answer_status is not None, "Unknown answer status"
+
+        ai_suggestion = None
+        if answer_status != AnswerStatus.AC:
+            # TODO: Handle the case that output is not a valid utf-8 string
+            prompt = f"Code:\n{code}\n\n"
+            prompt += f"Output:\n{output.decode()}\n\n"
+            if answer_status == AnswerStatus.WA:
+                prompt += f"Expected output:\n{expected_output.decode()}\n\n"
+            prompt += f"Run status:\n{result['status']}\n\n"
+            prompt += f"Answer status:\n{answer_status.name}"
             try:
-                text = await code_advice(f"{code}\n{result['status']}\n{'WA'}")
+                ai_suggestion = await code_advice(prompt)
             except:
-                text = await structured_prompt(f"{code}\n{result['status']}\n{'WA'}")
-            return "### Your code results: WA", text
-            
-        elif status == Result.RUNTIME_ERROR:
-            # TODO: Maybe need to escape the message before rendering
-            try:
-                text = await code_advice(f"{code}\n{result['status']}\n{msg}")
-            except:
-                text = await structured_prompt(f"{code}\n{result['status']}\n{msg}")
-            return f"### Your code results: {result['status']}\n{bytes.fromhex(msg)}", text
-                
-        try:
-            text = await code_advice(f"{code}\n{result['status']}\n{msg}")
-        except:
-            text = await structured_prompt(f"{code}\n{result['status']}\n{msg}")
-        return f"### Your code results: {result['status']}\n{msg}", text
+                ai_suggestion = await structured_prompt(prompt)
+
+        await save_submission(
+            user_id=1,
+            code=code,
+            question_name=question_name,
+            status=answer_status.value,
+            output=output,
+            ai_suggestion=ai_suggestion,
+        )
+
+        # TODO: We need to escape the msg
+        result = f"### Your code result\n{answer_status.name}\n\n"
+        if run_status in (RunStatus.COMPILE_ERROR, RunStatus.RUNTIME_ERROR):
+            result += "### Your Error\n"
+            result += f"```python-traceback\n{output.decode()}\n```"
+
+        return result, ai_suggestion
+

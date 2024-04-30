@@ -83,7 +83,7 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
                         ],
                         undo_btn=None,
                     )
-                    error_advice = gr.Textbox(
+                    error_advice = gr.Markdown(
                         "如果你的程式碼有錯誤，建議將會顯示在這裡", label="Code advice"
                     )
 
