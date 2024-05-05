@@ -68,7 +68,7 @@ async def respond(
     prompt.append(user_input)
     print(prompt)
 
-    if len(str(message)) >= 20:  # 複雜問題使用複雜模型
+    if len(str(message)) >= 30:  # 複雜問題使用複雜模型
         try:
             print("1.5pro")
             model = genai.GenerativeModel(
