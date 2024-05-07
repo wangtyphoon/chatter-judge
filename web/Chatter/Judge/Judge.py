@@ -92,7 +92,7 @@ async def execute_code(request: gr.Request, code: str, scope: str, question_name
             raise ValueError("Backend error")
 
         result = r.json()
-        print(result)
+        # print(result)
         run_status = RunStatus(result["status"])
         output = bytes.fromhex(result["output"]).strip()
 
@@ -119,6 +119,7 @@ async def execute_code(request: gr.Request, code: str, scope: str, question_name
                 prompt += f"Expected output:\n{expected_output.decode()}\n\n"
             prompt += f"Run status:\n{result['status']}\n\n"
             prompt += f"Answer status:\n{answer_status.name}"
+            print(prompt)
             try:
                 ai_suggestion = await code_advice(prompt)
             except:
