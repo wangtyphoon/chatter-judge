@@ -9,7 +9,7 @@ import gradio as gr
 from sqlalchemy import select
 
 from Chatter.Database.connection import get_db
-from Chatter.Database.models import Question, Scope
+from Chatter.Database.models import Question, Scope, Submission
 
 
 async def get_question_description(scope_name: str, question_name: str) -> gr.Markdown:
@@ -61,3 +61,14 @@ async def update_question_dropdown_and_description(scope_name: str) -> gr.Dropdo
             choices=[q.name for q in questions],
             interactive=True,
         ), gr.Markdown(first_description or "No question found")
+
+
+async def get_submissions(page_size: int, page_number: int) -> list[Submission]:
+    async for session in get_db():
+        stmt = (
+            select(Submission)
+            .order_by(Submission.created_at.desc())
+            .offset(page_size * page_number)
+            .limit(page_size)
+        )
+        return (await session.execute(stmt)).scalars().all()
