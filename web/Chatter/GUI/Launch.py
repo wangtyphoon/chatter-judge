@@ -34,7 +34,7 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
     with gr.Blocks(title="Chatter Judge", css=css_button) as demo:
         gr.Markdown(
             """<div align=center>
-                    <img src="https://i.imgur.com/mGJbbMN.png" width=200>
+                    <img src="https://i.imgur.com/ytHmTHY.jpeg" width=200>
                     </div>""",
         )
         #    scale=4,
