@@ -120,10 +120,10 @@ async def execute_code(request: gr.Request, code: str, scope: str, question_name
             prompt += f"Run status:\n{result['status']}\n\n"
             prompt += f"Answer status:\n{answer_status.name}"
             print(prompt)
-            try:
-                ai_suggestion = await code_advice(prompt)
-            except:
-                ai_suggestion = await structured_prompt(prompt)
+            # try:  #暫時取消在小樣本沒有明顯幫助
+            #     ai_suggestion = await code_advice(prompt)
+            # except:
+            ai_suggestion = await structured_prompt(prompt)
 
         await save_submission(
             user_id=1,
