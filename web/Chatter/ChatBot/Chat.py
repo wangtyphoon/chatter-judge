@@ -7,7 +7,7 @@
 import os
 
 import google.generativeai as genai
-
+from Chatter.ChatBot.model_scheduling import schdule
 # 從環境變數讀取 API 金鑰
 API_KEY = os.environ.get("GEMINI_API_KEY")
 
@@ -63,36 +63,41 @@ async def respond(
             prompt.append(model_output)
 
     init_dialog(chat_history)
-
+    
+    question_type = await schdule(message)
     user_input = user_word(message)
     prompt.append(user_input)
-    print(prompt)
 
-    if len(str(message)) >= 30:  # 複雜問題使用複雜模型
-        try:
+    print(question_type)
+    try:
+        if question_type == '困難':  # 複雜問題使用複雜模型
             print("1.5pro")
             model = genai.GenerativeModel(
-                model_name="gemini-1.5-pro-latest",
+                model_name="gemini-1.5-pro",
                 generation_config=generation_config,
                 safety_settings=safety_settings,
             )
-            response = model.generate_content(prompt)
-        except Exception:
-            # 出现错误时切换到 1.0pro 模型
-            print("over 1.5 pro limit")
+        elif question_type == '簡單':
             model = genai.GenerativeModel(
                 model_name="gemini-1.0-pro",
                 generation_config=generation_config,
                 safety_settings=safety_settings,
             )
-            response = model.generate_content(prompt)
-    else:
-        model = genai.GenerativeModel(
-            model_name="gemini-1.0-pro",
-            generation_config=generation_config,
-            safety_settings=safety_settings,
-        )
+        else:
+            model = genai.GenerativeModel(
+                model_name="gemini-1.5-flash",
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+            )
         response = model.generate_content(prompt)
+    except:
+        model = genai.GenerativeModel(
+                model_name="gemini-1.5-flash",
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+            )
+        response = model.generate_content(prompt)
+
 
     model_output = model_response(response.text)
     prompt.append(model_output)
