@@ -1,10 +1,3 @@
-
-from Chatter.Database.connection import get_db
-from Chatter.Database.models import Question, Scope, Submission
-import asyncio
-import gradio as gr
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 from Chatter.Utils.Update import get_submissions
 import pandas as pd
 # 假设你已经定义了Submission模型和get_db函数
