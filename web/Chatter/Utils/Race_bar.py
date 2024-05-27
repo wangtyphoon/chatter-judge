@@ -12,4 +12,12 @@ async def print_submissions():
         ], 
         columns=["ID", "Name", "Scope", "Question", "Status", "Time"]
     )
+    # 转换日期时间格式
+    df["Time"] = pd.to_datetime(df["Time"])
+
+    # 去除毫秒部分，只保留整数秒
+    df["Time"] = df["Time"].dt.floor('s')
+
+    # 转换为 UTC+8
+    df["Time"] = df["Time"].dt.tz_convert('Asia/Shanghai')
     return df
