@@ -171,7 +171,7 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
         # 使用 Tab 顯示不同頁面
         with gr.Tab("Race Bar"):
             gr.Markdown(header.race_bar_page_header)  # 顯示競賽列頁面標題
-            btn = gr.Button("Update Latesst Submissions")
+            btn = gr.Button("Update Latest Submissions")
             submissions = gr.Dataframe(
                 headers=["ID", "Name", "Scope", "Question", "Status", "Time"],
             )
