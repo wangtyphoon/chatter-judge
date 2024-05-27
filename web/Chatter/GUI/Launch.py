@@ -15,6 +15,7 @@ from Chatter.GUI.Tab import History as history  # 歷史記錄頁面
 from Chatter.GUI.Tab import admin as admin_set  # 管理頁面
 from Chatter.Judge.Judge import execute_code
 from Chatter.Judge.Plot import make_plot
+from Chatter.Utils.Race_bar import print_submissions
 from Chatter.Utils.Update import (
     get_question_description,
     update_question_dropdown_and_description,
@@ -170,10 +171,11 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
         # 使用 Tab 顯示不同頁面
         with gr.Tab("Race Bar"):
             gr.Markdown(header.race_bar_page_header)  # 顯示競賽列頁面標題
-
+            btn = gr.Button("Update Latesst Submissions")
             submissions = gr.Dataframe(
                 headers=["ID", "Name", "Scope", "Question", "Status", "Time"],
             )
+            btn.click(print_submissions, outputs=submissions)
             # TODO: update submissions
         with gr.Tab("Judge Mechanism"):
             gr.Markdown(header.judge_mechanism_page_header)  # 顯示評判機制頁面標題
