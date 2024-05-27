@@ -126,7 +126,7 @@ async def execute_code(request: gr.Request, code: str, scope: str, question_name
             ai_suggestion = await structured_prompt(prompt)
 
         await save_submission(
-            user_id=1,
+            user_id=request.session["user"],
             code=code,
             question_name=question_name,
             status=answer_status.value,
