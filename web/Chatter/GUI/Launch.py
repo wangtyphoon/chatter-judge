@@ -15,7 +15,7 @@ from Chatter.GUI.Tab import History as history  # 歷史記錄頁面
 from Chatter.GUI.Tab import admin as admin_set  # 管理頁面
 from Chatter.Judge.Judge import execute_code
 from Chatter.Judge.Plot import make_plot
-from Chatter.Utils.Race_bar import print_submissions
+from Chatter.Utils.Race_bar import print_submissions,get_question_list,draw_race_bar
 from Chatter.Utils.Update import (
     get_question_description,
     update_question_dropdown_and_description,
@@ -175,8 +175,23 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
             submissions = gr.Dataframe(
                 headers=["ID", "Name", "Scope", "Question", "Status", "Time"],
             )
-            btn.click(print_submissions, outputs=submissions)
-            # TODO: update submissions
+            with gr.Row():
+                plot_scope_name = gr.Dropdown(
+                    label="⛳️ Select Homework",
+                    interactive=True,
+                    allow_custom_value=True
+                )
+
+                plot_question_name = gr.Dropdown(
+                    label="📸 Select Question",
+                    interactive=True,
+                    allow_custom_value=True
+                )
+            race_bar_plot = gr.Plot()
+
+            btn.click(print_submissions, outputs=[submissions,plot_scope_name])
+            plot_scope_name.change(fn=get_question_list, inputs=plot_scope_name,outputs=plot_question_name)
+            plot_question_name.change(fn=draw_race_bar,inputs=[plot_scope_name,plot_question_name],outputs=race_bar_plot)
         with gr.Tab("Judge Mechanism"):
             gr.Markdown(header.judge_mechanism_page_header)  # 顯示評判機制頁面標題
         with gr.Tab("Judge Developers"):
