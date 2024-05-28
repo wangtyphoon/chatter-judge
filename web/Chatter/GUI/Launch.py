@@ -33,11 +33,7 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
     # demo = gr.Blocks(title="Chatter Judge")  # 頁面標題
 
     with gr.Blocks(title="Chatter Judge", css=css_button) as demo:
-        gr.Markdown(
-            """<div align=center>
-                    <img src="https://i.imgur.com/ytHmTHY.jpeg" width=200>
-                    </div>""",
-        )
+        gr.Markdown(header.ee_judge_header)
         #    scale=4,
         # )  # 顯示 EE Judge 標題(icon)
         # gr.Markdown(header.ee_judge_header)  # 顯示 EE Judge 標題(先以icon替換)
