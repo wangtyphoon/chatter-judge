@@ -178,7 +178,7 @@ async def draw_race_bar(selected_scope, selected_question):
             df = df[
                 (df["Scope"] == selected_scope)
                 & (df["Question"] == selected_question)
-                & (df["Status"] == 0)
+                & (df["Status"] == "AC")
             ]
             df = df.groupby("Name")["Time"].min().reset_index()
             df = df.sort_values(by="Time", ascending=False)
@@ -235,5 +235,15 @@ async def draw_race_bar(selected_scope, selected_question):
             plt.tight_layout()
 
             return fig
-    except Exception as e:
-        raise e
+    except:
+        fig, ax = plt.subplots(figsize=(6, 3))
+
+        # 移除坐标轴
+        ax.axis('off')
+
+        # 添加文字
+        ax.text(0.5, 0.5, 'No One Success', 
+                fontsize=20, ha='center', va='center', color='red')
+        
+        return fig
+        
