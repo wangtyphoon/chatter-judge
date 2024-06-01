@@ -11,11 +11,14 @@ import gradio as gr
 
 from Chatter.ChatBot.Chat import respond
 from Chatter.GUI.Information import Header as header  # 標題資訊
-from Chatter.GUI.Tab import History as history  # 歷史記錄頁面
 from Chatter.GUI.Tab import admin as admin_set  # 管理頁面
 from Chatter.Judge.Judge import execute_code
-from Chatter.Judge.Plot import make_plot
-from Chatter.Utils.Race_bar import print_submissions,get_question_list,draw_race_bar
+from Chatter.Utils.Race_bar import (
+    draw_race_bar,
+    get_question_list,
+    print_all_submissions,
+    print_self_submissions,
+)
 from Chatter.Utils.Update import (
     get_question_description,
     update_question_dropdown_and_description,
@@ -162,36 +165,40 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
                 outputs=[selected_question_name, question_description],
             )
 
-        history.init_history_tab()
+        with gr.Tab("Submitted History") as history_tab:
+            gr.Markdown(header.submitted_history_page_header)
+            self_submissions = gr.Dataframe(
+                headers=["ID", "Name", "Scope", "Question", "Status", "Time"],
+            )
 
         # 使用 Tab 顯示不同頁面
-        with gr.Tab("Race Bar"):
+        with gr.Tab("Race Bar") as race_bar_tab:
             gr.Markdown(header.race_bar_page_header)  # 顯示競賽列頁面標題
-            btn = gr.Button("Update Latest Submissions")
-            submissions = gr.Dataframe(
+            all_submissions = gr.Dataframe(
                 headers=["ID", "Name", "Scope", "Question", "Status", "Time"],
             )
             with gr.Row():
                 plot_scope_name = gr.Dropdown(
-                    label="⛳️ Select Homework",
-                    interactive=True,
-                    allow_custom_value=True
+                    label="⛳️ Select Homework", interactive=True, allow_custom_value=True
                 )
 
                 plot_question_name = gr.Dropdown(
-                    label="📸 Select Question",
-                    interactive=True,
-                    allow_custom_value=True
+                    label="📸 Select Question", interactive=True, allow_custom_value=True
                 )
             race_bar_plot = gr.Plot()
 
-            btn.click(print_submissions, outputs=[submissions,plot_scope_name])
-            plot_scope_name.change(fn=get_question_list, inputs=plot_scope_name,outputs=plot_question_name)
-            plot_question_name.change(fn=draw_race_bar,inputs=[plot_scope_name,plot_question_name],outputs=race_bar_plot)
-        with gr.Tab("Judge Mechanism"):
-            gr.Markdown(header.judge_mechanism_page_header)  # 顯示評判機制頁面標題
-        with gr.Tab("Judge Developers"):
-            gr.Markdown(header.judger_developer_page_header)  # 顯示評判開發者頁面標題
+            plot_scope_name.change(
+                fn=get_question_list, inputs=plot_scope_name, outputs=plot_question_name
+            )
+            plot_question_name.change(
+                fn=draw_race_bar,
+                inputs=[plot_scope_name, plot_question_name],
+                outputs=race_bar_plot,
+            )
+        # with gr.Tab("Judge Mechanism"):
+        #     gr.Markdown(header.judge_mechanism_page_header)  # 顯示評判機制頁面標題
+        # with gr.Tab("Judge Developers"):
+        #     gr.Markdown(header.judger_developer_page_header)  # 顯示評判開發者頁面標題
 
         demo.load(
             fn=update_scope_dropdown,
@@ -204,6 +211,10 @@ document.getElementById("logout").onclick = (() => {
 }),
 ()=>{}""".strip(),
         )  # 加载 JS 代码处理登录逻辑
+
+        history_tab.select(fn=print_self_submissions, outputs=self_submissions)
+
+        race_bar_tab.select(fn=print_all_submissions, outputs=[all_submissions, plot_scope_name])
 
     # 暫時禁用身份驗證
     # demo.auth = auth.auth_admin

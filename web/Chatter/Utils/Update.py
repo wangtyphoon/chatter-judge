@@ -72,3 +72,15 @@ async def get_submissions(page_size: int, page_number: int) -> list[Submission]:
             .limit(page_size)
         )
         return (await session.execute(stmt)).scalars().all()
+
+
+async def get_self_submissions(user_id: int, page_size: int, page_number: int) -> list[Submission]:
+    async for session in get_db():
+        stmt = (
+            select(Submission)
+            .where(Submission.user_id == user_id)
+            .order_by(Submission.created_at.desc())
+            .offset(page_size * page_number)
+            .limit(page_size)
+        )
+        return (await session.execute(stmt)).scalars().all()
