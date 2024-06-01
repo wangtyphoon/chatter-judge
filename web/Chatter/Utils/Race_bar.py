@@ -132,15 +132,17 @@ async def draw_race_bar(selected_scope, selected_question):
 
             selected_times = [min_time + pd.Timedelta(minutes=time_interval * i) for i in range(7)]
             ax.set_xticks(selected_times)
-            ax.set_xticklabels([t.strftime('%Y-%m-%d %H:%M:%S') for t in selected_times], rotation=45)
+            ax.set_xticklabels([t.strftime('%m/%d %H:%M:%S') for t in selected_times], rotation=45)
 
             mid_x = -0.092
             ax.annotate('Latest Commit',xy=(mid_x, 0.52), xycoords='axes fraction', 
-             xytext=(-0.1, 0.05), arrowprops=dict(arrowstyle='<-', color='black', lw=2), rotation=90) 
+            xytext=(-0.1, 0.05), arrowprops=dict(arrowstyle='<-', color='black', lw=2), rotation=90) 
 
             ax.annotate('Earliest Commit',xy=(mid_x, 0.49), xycoords='axes fraction', 
-             xytext=(-0.1, 0.80), arrowprops=dict(arrowstyle='<-', color='black', lw=2), rotation=90) 
+            xytext=(-0.1, 0.80), arrowprops=dict(arrowstyle='<-', color='black', lw=2), rotation=90) 
             
+            plt.tight_layout()
+
             return fig
     except Exception as e:
         raise e

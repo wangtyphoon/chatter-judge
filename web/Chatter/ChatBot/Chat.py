@@ -70,29 +70,32 @@ async def respond(
 
     print(question_type)
     try:
-        if question_type == '困難':  # 複雜問題使用複雜模型
+        if question_type == 'hard':  # 複雜問題使用複雜模型
             print("1.5pro")
             model = genai.GenerativeModel(
                 model_name="gemini-1.5-pro",
                 generation_config=generation_config,
                 safety_settings=safety_settings,
             )
-        elif question_type == '簡單':
+        elif question_type == 'easy':
+            print("1.5flash")
+            model = genai.GenerativeModel(
+                model_name="gemini-1.5-flash",
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+            )
+        else:
+            print("1.0pro")
             model = genai.GenerativeModel(
                 model_name="gemini-1.0-pro",
                 generation_config=generation_config,
                 safety_settings=safety_settings,
             )
-        else:
-            model = genai.GenerativeModel(
-                model_name="gemini-1.5-flash",
-                generation_config=generation_config,
-                safety_settings=safety_settings,
-            )
         response = model.generate_content(prompt)
     except:
+        print("exception 1.0pro")
         model = genai.GenerativeModel(
-                model_name="gemini-1.5-flash",
+                model_name="gemini-1.0-pro",
                 generation_config=generation_config,
                 safety_settings=safety_settings,
             )
