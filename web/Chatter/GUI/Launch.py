@@ -112,30 +112,30 @@ def build_chatter_judge(*args: Any, **kwargs: Any) -> gr.Blocks:
                     # chatgpt_suggestion = gr.Markdown(
                     #     f"### Review by ChatGPT: "
                     # )
-                    with gr.Row():
-                        gr.Plot(
-                            value=make_plot("scatter_plot"),
-                            label="Plotttttt",
-                            scale=4,
-                            interactive=True,
-                            # show_actions_button=True,
-                        )
+                    # with gr.Row():
+                    #     gr.Plot(
+                    #         value=make_plot("scatter_plot"),
+                    #         label="Plotttttt",
+                    #         scale=4,
+                    #         interactive=True,
+                    #         # show_actions_button=True,
+                    #     )
 
-                        gr.Radio(
-                            scale=1,
-                            label="Plot type",
-                            choices=[
-                                "AC",
-                                "WA",
-                                "TLE",
-                                "MLE",
-                                "RE",
-                                "CE",
-                                "ChatGPT",
-                            ],
-                            value="AC",
-                            interactive=True,
-                        )
+                    #     gr.Radio(
+                    #         scale=1,
+                    #         label="Plot type",
+                    #         choices=[
+                    #             "AC",
+                    #             "WA",
+                    #             "TLE",
+                    #             "MLE",
+                    #             "RE",
+                    #             "CE",
+                    #             "ChatGPT",
+                    #         ],
+                    #         value="AC",
+                    #         interactive=True,
+                    #     )
 
             submit_code_btn.click(
                 execute_code,
