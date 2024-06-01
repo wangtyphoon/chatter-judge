@@ -178,7 +178,7 @@ async def draw_race_bar(selected_scope, selected_question):
             df = df[
                 (df["Scope"] == selected_scope)
                 & (df["Question"] == selected_question)
-                & (df["Status"] == "AC")
+                & (df["Status"] == 0)
             ]
             df = df.groupby("Name")["Time"].min().reset_index()
             df = df.sort_values(by="Time", ascending=False)
